@@ -60,6 +60,7 @@ class BaseSource:
                 json_objs = do_request(url)
                 if json_objs['paging']['is_end']:
                     time.sleep(600)
+                    self._logger.info('end reached, sleep for 10 mins!')
                     url = self._start_url
                     continue
 
