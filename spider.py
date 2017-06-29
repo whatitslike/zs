@@ -115,6 +115,12 @@ class Spider:
             log.logger.debug('get explore url: %s' % url)
             try:
                 json_obj = self._do_get(url)
+                if json_obj['paging']['is_end']:
+                    time.sleep(3600)
+                    self._explore_feed_q.put(self._explore_feed_start_url)
+                    log.logger.debug('feeds reach end sleep 1hrs')
+                    continue
+
                 url = json_obj['paging']['next']
                 log.logger.debug('get explore url: %s' % url)
                 self._explore_feed_q.put(url)
