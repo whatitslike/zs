@@ -42,8 +42,8 @@ class Proxy:
                     self._parse_content(soup)
                 except Exception as e:
                     print(e)
-                finally:
-                    time.sleep(10)
+
+            time.sleep(10)
 
     def start(self):
         t = threading.Thread(target=self._retrieve_proxy)
