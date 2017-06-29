@@ -1,6 +1,7 @@
 import time
 import json
 import queue
+import pprint
 import threading
 import traceback
 
@@ -27,6 +28,7 @@ class Spider:
             'Cookie': 'aliyungf_tc=AQAAAGg6XzlAOQQAorTAb5V5ghrEvuHc; z_c0=gt2.0AAAAAAVS-HUL-_epp8IwAAAAAAtNVQJgAgDrwCAkhbZVGCqAKUzf2ACgctdj1A==; d_c0=ADDCp6n3-wtLBf1ji8mZKMzrJRMw29chulc=|1498668306',
             'X-SUGER': 'SURGQT1BNjI5RTkwMi02RUFBLTQwODktOEQ2Ny02NTNGQTcwMTgxRjU=',
         }
+        self._start_url = 'https://api.zhihu.com/topstory?action=pull&before_id=9&limit=10&action_feed=True&session_token=443067487ef8beca7e6eda932e25725d'
         self._topstory_q = queue.Queue()
         self._question_q = queue.Queue()
         self._answer_q = queue.Queue()
@@ -59,6 +61,7 @@ class Spider:
             except:
                 exstr = traceback.format_exc()
                 log.logger.debug(exstr)
+                self._topstory_q.put(self._start_url)
                 continue
             finally:
                 time.sleep(10)
@@ -66,7 +69,9 @@ class Spider:
     def _do_get(self, url):
         proxy = self._proxies.get()
         r = requests.get(url, headers=self._headers, proxies=[proxy, ])
-        return json.loads(r.content)
+        jsobj = json.loads(r.content)
+        pprint.pprint(jsobj)
+        return jsobj
 
     def _get_answer(self):
         while True:
@@ -76,6 +81,10 @@ class Spider:
             for obj in json_obj['data']:
                 s = Answer(obj)
                 s.save()
+
+            p = json_obj.get('paging')
+            if p and not p['paging']['is_end']:
+                self._answer_q.put(p['paging']['next'])
 
     def _parse_answer_url(self, q_url):
         schema = 'https://api.zhihu.com/questions/%s/answers'
@@ -94,8 +103,7 @@ class Spider:
             self._answer_q.put(answer_url)
 
     def start(self):
-        start_url = 'https://api.zhihu.com/topstory?action=pull&before_id=9&limit=10&action_feed=True&session_token=443067487ef8beca7e6eda932e25725d'
-        self._topstory_q.put(start_url)
+        self._topstory_q.put(self._start_url)
         tt = threading.Thread(target=self._get_topstory)
         tt.setDaemon(True)
         tt.start()
