@@ -115,6 +115,10 @@ class Spider:
             log.logger.debug('get explore url: %s' % url)
             try:
                 json_obj = self._do_get(url)
+                url = json_obj['paging']['next']
+                log.logger.debug('get explore url: %s' % url)
+                self._explore_feed_q.put(url)
+
                 for obj in json_obj['data']:
                     t = obj.get('type')
                     if t != 'explore_feed':
