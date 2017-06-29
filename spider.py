@@ -29,9 +29,12 @@ class Spider:
             'X-SUGER': 'SURGQT1BNjI5RTkwMi02RUFBLTQwODktOEQ2Ny02NTNGQTcwMTgxRjU=',
         }
         self._start_url = 'https://api.zhihu.com/topstory?action=pull&before_id=9&limit=10&action_feed=True&session_token=443067487ef8beca7e6eda932e25725d'
+        self._explore_feed_start_url = 'https://api.zhihu.com/explore/feeds?limit=10&offset=0'
+
         self._topstory_q = queue.Queue()
         self._question_q = queue.Queue()
         self._answer_q = queue.Queue()
+        self._explore_feed_q = queue.Queue()
 
     def _parse_topstory(self, objs):
         for obj in objs['data']:
@@ -79,6 +82,9 @@ class Spider:
             log.logger.debug('get answer url: %s' % url)
             json_obj = self._do_get(url)
             for obj in json_obj['data']:
+                log.logger.debug('get answer url %s' % obj['url'])
+                self._answer_q.put(obj['url'])
+
                 s = Answer(obj)
                 s.save()
 
@@ -100,7 +106,38 @@ class Spider:
             q.save()
 
             answer_url = self._parse_answer_url(url)
+            log.logger.debug('get answer url: %s' % answer_url)
             self._answer_q.put(answer_url)
+
+    def _get_explore_feeds(self):
+        while True:
+            url = self._explore_feed_q.get()
+            log.logger.debug('get explore url: %s' % url)
+            try:
+                json_obj = self._do_get(url)
+                for obj in json_obj['data']:
+                    t = obj.get('type')
+                    if t != 'explore_feed':
+                        continue
+
+                    t = obj.get('target', {}).get('type')
+                    if t != 'answer':
+                        continue
+
+                    url = obj['target']['url']
+                    log.logger.debug('get answer url: %s' % url)
+                    self._answer_q.put(url)
+
+                    url = obj['target']['question']['url']
+                    log.logger.debug('get question url: %s' % url)
+                    self._question_q.put(url)
+            except:
+                exstr = traceback.format_exc()
+                log.logger.debug(exstr)
+                self._explore_feed_q.put(self._explore_feed_start_url)
+                continue
+            finally:
+                time.sleep(10)
 
     def start(self):
         self._topstory_q.put(self._start_url)
@@ -116,7 +153,12 @@ class Spider:
         tq.setDaemon(True)
         tq.start()
 
-        [t.join() for t in (tt, ta, tq)]
+        self._explore_feed_q.put(self._explore_feed_start_url)
+        tf = threading.Thread(target=self._get_explore_feeds)
+        tf.setDaemon(True)
+        tf.start()
+
+        [t.join() for t in (tt, ta, tq, tf)]
         log.logger.debug('exiting...')
 
 
