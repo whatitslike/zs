@@ -4,6 +4,7 @@ import time
 from sources import (
     explore_feeds,
     topstories,
+    columns,
 )
 from models import (
     Answer,
@@ -18,6 +19,7 @@ class Spider:
         self.sources = [
             explore_feeds.ExploreFeeds(),
             topstories.TopStory(),
+            columns.Columns(),
         ]
         self.consumers = [
             Answer,
