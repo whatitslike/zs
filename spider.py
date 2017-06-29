@@ -94,7 +94,7 @@ class Spider:
             self._answer_q.put(answer_url)
 
     def start(self):
-        start_url = 'https://api.zhihu.com/topstory?action=pull&before_id=179&limit=10&action_feed=True&session_token=071ff93561aff77eec44f362ead046d0'
+        start_url = 'https://api.zhihu.com/topstory?action=pull&before_id=9&limit=10&action_feed=True&session_token=443067487ef8beca7e6eda932e25725d'
         self._topstory_q.put(start_url)
         tt = threading.Thread(target=self._get_topstory)
         tt.setDaemon(True)
