@@ -29,7 +29,7 @@ class Spider:
             'X-SUGER': 'SURGQT1BNjI5RTkwMi02RUFBLTQwODktOEQ2Ny02NTNGQTcwMTgxRjU=',
         }
         self._start_url = 'https://api.zhihu.com/topstory?action=pull&before_id=9&limit=10&action_feed=True&session_token=443067487ef8beca7e6eda932e25725d'
-        self._explore_feed_start_url = 'https://api.zhihu.com/explore/feeds?limit=10&offset=0'
+        self._explore_feed_start_url = 'https://api.zhihu.com/explore/feeds?limit=20&offset=20'
 
         self._topstory_q = queue.Queue()
         self._question_q = queue.Queue()
