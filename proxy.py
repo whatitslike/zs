@@ -1,5 +1,4 @@
 import time
-import random
 import queue
 import threading
 
@@ -36,15 +35,15 @@ class Proxy:
 
     def _retrieve_proxy(self):
         while True:
-            url = random.choice(self._proxy_repo)
-            try:
-                r = requests.get(url)
-                soup = BeautifulSoup(r.content)
-                self._parse_content(soup)
-            except Exception as e:
-                print(e)
-            finally:
-                time.sleep(30)
+            for url in self._proxy_repo:
+                try:
+                    r = requests.get(url)
+                    soup = BeautifulSoup(r.content)
+                    self._parse_content(soup)
+                except Exception as e:
+                    print(e)
+                finally:
+                    time.sleep(10)
 
     def start(self):
         t = threading.Thread(target=self._retrieve_proxy)
