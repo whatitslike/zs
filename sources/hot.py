@@ -1,22 +1,21 @@
 from .base import BaseSource
 
 
-class ExploreFeeds(BaseSource):
+class Hot(BaseSource):
 
     def __init__(self):
-        super(ExploreFeeds, self).__init__()
+        super(Hot, self).__init__()
 
         self._start_urls = [
-            'https://api.zhihu.com/explore/feeds?limit=20&offset=20',
+            'https://api.zhihu.com/explore/modules/pages?page_token=page%3Ahot_content%3Aday&limit=20&offset=20',
+            'https://api.zhihu.com/explore/modules/pages?excerpt_len=70&page_token=page%3Ahot_content%3Aweek',
+            'https://api.zhihu.com/explore/modules/pages?excerpt_len=70&page_token=page%3Ahot_content%3Amonth',
         ]
 
     def _parse(self, json_objs):
         for obj in json_objs['data']:
-            t = obj.get('type')
-            if t != 'explore_feed':
-                continue
+            t = obj.get('target_type')
 
-            t = obj.get('target', {}).get('type')
             if t == 'answer':
                 url = obj['target']['url']
                 self.produce_answer(url)
@@ -27,4 +26,3 @@ class ExploreFeeds(BaseSource):
             elif t == 'article':
                 url = obj['target']['url']
                 self.produce_article(url)
-

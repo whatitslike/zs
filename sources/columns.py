@@ -24,10 +24,6 @@ class Columns(BaseSource):
             'https://api.zhihu.com/columns?classify=16&excerpt_len=75',
         ]
 
-    @property
-    def _start_url(self):
-        return random.choice(self._start_urls)
-
     def _get_article_urls(self, column_url):
         return column_url + '/articles?limit=20&offset=10'
 

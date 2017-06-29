@@ -1,4 +1,5 @@
 import time
+import random
 import threading
 import traceback
 
@@ -14,17 +15,21 @@ from utils import (
 class BaseSource:
 
     def __init__(self):
-        self._explore_feed_start_url = None
         self._logger = get_logger()
         self.answer_queue = answer_queue
         self.question_queue = question_queue
         self.article_queue = article_queue
         self.directions = ['previous', 'next']
+        self._start_urls = []
 
     def _parse_answer_url(self, q_url):
         schema = 'https://api.zhihu.com/questions/%s/answers'
         qid = q_url.split('/')[-1]
         return schema % qid
+
+    @property
+    def _start_url(self):
+        return random.choice(self._start_urls)
 
     def produce_question(self, url):
         self.question_queue.put(url)
@@ -49,13 +54,12 @@ class BaseSource:
     def _parse(self, json_objs):
         raise NotImplementedError
 
-    def _start(self, direction):
-        url = self._start_url
+    def _start(self, url, direction):
         while True:
             try:
                 json_objs = do_request(url)
                 if json_objs['paging']['is_end']:
-                    time.sleep(3600)
+                    time.sleep(600)
                     url = self._start_url
                     continue
 
@@ -66,14 +70,14 @@ class BaseSource:
             except:
                 exstr = traceback.format_exc()
                 self._logger.error(exstr)
-                self._logger.error(json_objs)
                 continue
 
             finally:
                 time.sleep(10)
 
     def start(self):
-        for direction in self.directions:
-            t = threading.Thread(target=self._start, args=(direction,))
-            t.setDaemon(True)
-            t.start()
+        for start_url in self._start_urls:
+            for direction in self.directions:
+                t = threading.Thread(target=self._start, args=(start_url, direction))
+                t.setDaemon(True)
+                t.start()

@@ -5,6 +5,7 @@ from sources import (
     explore_feeds,
     topstories,
     columns,
+    hot,
 )
 from models import (
     Answer,
@@ -20,6 +21,7 @@ class Spider:
             explore_feeds.ExploreFeeds(),
             topstories.TopStory(),
             columns.Columns(),
+            hot.Hot(),
         ]
         self.consumers = [
             Answer,

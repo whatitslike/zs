@@ -21,6 +21,7 @@ class Proxy:
             'http://www.kuaidaili.com/free/inha/7/',
             'http://www.kuaidaili.com/free/inha/8/',
             'http://www.kuaidaili.com/free/inha/9/',
+            'http://www.kuaidaili.com/free/inha/10/',
         ]
 
     def _parse_content(self, soup_obj):
@@ -43,7 +44,7 @@ class Proxy:
             except Exception as e:
                 print(e)
             finally:
-                time.sleep(60)
+                time.sleep(30)
 
     def start(self):
         t = threading.Thread(target=self._retrieve_proxy)
