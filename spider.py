@@ -1,3 +1,4 @@
+import sys
 import time
 
 
@@ -40,10 +41,14 @@ class Spider:
 
 
 if __name__ == '__main__':
+    start = time.time()
     s = Spider()
     s.do_crawl()
     try:
         while True:
+            if time.time() - start > 60 * 60:
+                sys.exit()
+
             time.sleep(2**10)  # actually sleep forever
     except KeyboardInterrupt:
         print('i am gone, Bye!')
