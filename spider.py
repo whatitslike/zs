@@ -8,6 +8,7 @@ from sources import (
     columns,
     hot,
     roundtables,
+    topics,
 )
 from models import (
     Answer,
@@ -25,6 +26,7 @@ class Spider:
             columns.Columns(),
             hot.Hot(),
             roundtables.RoundTables(),
+            topics.Topics(),
         ]
         self.consumers = [
             Answer,
