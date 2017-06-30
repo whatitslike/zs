@@ -9,7 +9,7 @@ import proxy
 
 def get_logger():
     logger = logging.getLogger("zhihu-spider")
-    formatter = logging.Formatter('%(name)-12s %(message)s')
+    formatter = logging.Formatter('%(name)-12s %(asctime)s %(message)s')
     file_handler = logging.FileHandler("spider.log")
     file_handler.setFormatter(formatter)
     logger.setLevel(logging.DEBUG)
